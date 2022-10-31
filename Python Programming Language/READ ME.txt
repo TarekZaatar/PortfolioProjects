@@ -1,0 +1,4 @@
+Python Noon Web Scrapper using Beautiful Soap project
+
+To get the user agent for the header use the following link
+https://httpbin.org/get
