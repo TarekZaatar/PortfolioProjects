@@ -1,0 +1,10 @@
+Develop a database to analyze and visualize hotel booking data.
+we are going to import excel file to SQL database then connect the database to Ms Power BI to answer some business questions
+
+is our hotel revenue growing by year
+
+should we increase parking lot
+
+what is the percentage of repeated guests
+
+what is the most booked room type
