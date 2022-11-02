@@ -1,0 +1,4 @@
+Segment shopping customers
+
+We are developing a python customer segmentation and clustering program to develop and plan a strategy for the marketing team in order to target customers
+we need to identify most important shopping groups based on income,age and the mall shopping score
