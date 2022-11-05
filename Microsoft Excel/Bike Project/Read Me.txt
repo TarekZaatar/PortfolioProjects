@@ -1,6 +1,0 @@
-In this project, dashboard will be created to
-analysis bike purchases data.
-
-Analysis on different variables will
-be performed to see which one effect bike
-purchases.
