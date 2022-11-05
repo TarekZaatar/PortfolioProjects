@@ -1,0 +1,17 @@
+Clinic Data
+
+Problem: clinic has gotten several complaints
+regarding wait times
+
+Management Questions
+Do we have staffing issues?
+Are these complaints legitimate?
+Are we too busy?
+Is it a certain type of patient?
+
+We are going to use:
+Pivot tables
+Conditional Formatting
+Time Conversions
+New Dimensions
+Function: TEXT , DAYOFWEEK
