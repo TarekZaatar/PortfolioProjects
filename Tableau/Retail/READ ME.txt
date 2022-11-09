@@ -1,0 +1,13 @@
+Analyzing Retail data to find trends for different
+regions and states. The dashboard will show 
+insights about profit, sales, discounts over
+different areas.
+
+The insights will be as follow:
+-State wise profit
+-Distribution of avg profit by state.
+-Profit/Loss
+-Age and Profit
+-Average Sales
+-Average Profit
+-Average Discount
