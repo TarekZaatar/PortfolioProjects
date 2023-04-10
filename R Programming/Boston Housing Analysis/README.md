@@ -15,4 +15,6 @@ Data contains 506 observations on 14 variables, medv being the target variable
 - lstat	- percentage of lower status of the population
 - medv 	- median value of owner-occupied homes in USD 1000’s
 
-for more information about the data and package used https://cran.r-project.org/web/packages/mlbench/mlbench.pdf
+For more information about the data and package used https://cran.r-project.org/web/packages/mlbench/mlbench.pdf
+
+The code creates a regression model to predict the price of homes
