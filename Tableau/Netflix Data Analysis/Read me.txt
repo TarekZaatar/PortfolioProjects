@@ -1,0 +1,10 @@
+In this project, analysis were performed on Netflix shows dataset.
+
+Visuals were created to track
+
+* Total Number of shows on Netflix
+* Number of Shows in each show type
+* Number of Shows listed each Year
+* Number of Shows released each year
+* Number of netflix shows per rating type
+* Number of shows that was produced soley in one country
