@@ -1,0 +1,267 @@
+---
+title: "Iris flower Dataset Analysis"
+author: "Tarek Zaatar"
+output: html_document
+---
+
+
+# Introduction
+
+This markdown document will go through the steps to perform an analysis of the famous "iris" dataset, which contains information about three species of iris flowers (setosa, versicolor, and virginica). The code will perform high level data exploration, data visualization then build a classification model using the dataset.
+
+
+
+## Installing necessary packages
+
+The first few lines of the code install and load the necessary R packages, such as "skimr," "reshape2," "caret," and "kernlab."
+
+```{r Installing necessary packages, eval=FALSE, message=FALSE, warning=FALSE}
+
+install.packages("skimr")
+install.packages("reshape2")                                
+install.packages("caret")
+install.packages("kernlab")
+install.packages("dplyr")
+
+```
+
+## Load the required packages
+
+```{r Load the installed and required packages,  message=FALSE, warning=FALSE}
+
+library(reshape2) 
+library(skimr)
+library(datasets)
+library(caret)
+library(dplyr)
+
+```
+
+The "set.seed(2000)" command sets the seed for the random number generator. Setting the seed ensures that any random processes in the code are repeatable.
+
+```{r Fixing seed, echo=TRUE}
+set.seed(2000)
+
+```
+
+
+# Data exploration
+
+Show first few rows on the data.
+
+```{r data head, echo=TRUE}
+
+head(iris)
+
+```
+
+Display the columns name.
+
+```{r columns name, echo=TRUE}
+colnames(iris)
+
+```
+
+View general structure of the data
+
+```{r general structure of the data, echo=TRUE}
+str(iris)
+```
+
+## Display data summary and statistics
+
+
+View a glimpse of the data
+
+```{r glimpse analysis of the data, echo=TRUE}
+glimpse(iris)
+
+```
+
+View a summary of the data
+
+```{r summary of the data, echo=TRUE}
+iris %>% summary()
+```
+
+View a summary statistics of the data
+
+```{r skim, echo=TRUE}
+skim(iris)
+```
+
+
+Check is there are any missing values in the dataset
+
+```{r missing data, echo=TRUE}
+sum(is.na(iris))
+```
+
+Count the number of species
+
+```{r count of flower species, echo=TRUE}
+iris %>% count(Species)
+```
+
+
+View a statistic summary per flower species
+
+```{r summary of the data per group, echo=TRUE}
+iris %>% group_by(Species) %>% skim()
+```
+
+
+
+# Data visualization
+
+
+Create a bar plot showing the frequency of each species in the dataset.
+```{r plot 1, echo=TRUE, fig.align='center', out.height="60%", out.width="60%"}
+ggplot(data=iris)+geom_bar(mapping=aes(x=Species,fill=Species))
+```
+
+Create  histogram showing the distribution of sepal widths.
+
+```{r plot 2, echo=TRUE, fig.align='center', out.height="60%", out.width="60%"}
+
+ggplot(data=iris)+geom_histogram(bins= 20, mapping=aes(x=Sepal.Width))
+
+```
+
+
+Create a box plot showing the distribution of sepal widths for each species.
+ 
+```{r plot 3, echo=TRUE, fig.align='center', out.height="60%", out.width="60%"}
+ggplot(data=iris)+geom_boxplot(mapping=aes(y=Sepal.Width,group=Species,fill= Species))
+```
+
+
+```{r plot 4, echo=TRUE, fig.align='center', out.height="60%", out.width="60%"}
+
+iris_long <- melt(iris, id = "Species")    
+
+ggplot(data=iris_long) + geom_boxplot( aes(x = variable, y = value, fill = Species))
+
+```
+
+
+
+
+# Classificiation process
+
+
+## Splitting the data
+
+
+```{r data splitting, echo=TRUE}
+trainingIndex <- createDataPartition(iris$Species, p=0.8,list = FALSE)
+trainingSet <- iris[trainingIndex,]
+testingSet <- iris[-trainingIndex,]
+
+```
+
+
+Checking the boxplot of the training and testing dataset and comparing it to the original data boxplot
+
+```{r plot 5, echo=TRUE, fig.align='center', out.height="60%", out.width="60%"}
+
+iris1 <- melt(trainingSet, id = "Species")    
+
+ggplot(data=iris1) + 
+  geom_boxplot( aes(x = variable, y = value, fill = Species))
+
+
+```
+
+
+
+```{r plot 6, echo=TRUE, fig.align='center', out.height="60%", out.width="60%"}
+
+
+iris2 <- melt(testingSet, id = "Species")    
+
+ggplot(data=iris2) + 
+  geom_boxplot( aes(x = variable, y = value, fill = Species))
+
+
+```
+
+
+
+
+
+## Build Training model
+
+```{r Build Training model, echo=TRUE, message=FALSE, warning=FALSE}
+model <- train(Species ~ ., data = trainingSet,
+               method = "svmPoly",
+               na.action = na.omit,
+               preProcess=c("scale","center"),
+               trControl= trainControl(method="none"),
+               tuneGrid = data.frame(degree=1,scale=1,C=1)
+)
+
+```
+
+
+
+
+## Build CV model
+
+
+```{r Build CV model, echo=TRUE, message=FALSE, warning=FALSE}
+model.cv <- train(Species ~ ., data = trainingSet,
+                  method = "svmPoly",
+                  na.action = na.omit,
+                  preProcess=c("scale","center"),
+                  trControl= trainControl(method="cv", number=10),
+                  tuneGrid = data.frame(degree=1,scale=1,C=1)
+)
+
+```
+
+
+
+
+
+## Apply model for prediction
+```{r Apply model for prediction, echo=TRUE, message=FALSE, warning=FALSE}
+model.training <-predict(model, trainingSet) 
+model.testing <-predict(model, testingSet) 
+model.cv <-predict(model.cv, trainingSet) 
+```
+
+
+
+
+## Model performance (Displays confusion matrix and statistics)
+
+```{r Model performance, echo=TRUE, message=FALSE, warning=FALSE}
+model.training.confusion <-confusionMatrix(model.training, trainingSet$Species)
+model.testing.confusion <-confusionMatrix(model.testing, testingSet$Species)
+model.cv.confusion <-confusionMatrix(model.cv, trainingSet$Species)
+```
+
+
+
+```{r print model confusion matrix, echo=TRUE}
+
+print(model.training.confusion)
+print(model.testing.confusion)
+print(model.cv.confusion)
+```
+
+
+
+## Feature importance
+
+```{r Feature importance, echo=TRUE}
+
+importance <- varImp(model)
+plot(importance)
+
+```
+
+
+
+Disclaimer: This project was inspired by Data professor.

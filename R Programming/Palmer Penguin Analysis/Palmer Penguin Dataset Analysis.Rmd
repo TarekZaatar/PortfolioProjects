@@ -1,0 +1,368 @@
+---
+title: "Palmer Penguin Dataset Analysis"
+author: "Tarek Zaatar"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This is high level analysis report of the Palmer Penguin Dataset collected by Dr. Kristen Gorman. The report will cover general analysis about the dataset, then will move into investigating the relationship between the physical characteristics of the different species of penguins. For more details on the problem see <https://allisonhorst.github.io/palmerpenguins/index.html>.
+
+# Analysis
+
+The following section will show the steps of the analysis showing sample code and output. During the analysis we will try to answer the following questions:
+
+* Is there a relationship between penguin's body mass and bill length?    
+
+* Is there a relationship between penguin's body mass and flipper length?
+
+* Does the sex, species or location of the penguin effect the physical characteristics?    
+
+
+## Installing necessary packages
+
+
+```{r Installing necessary packages, eval=FALSE, message=FALSE, warning=FALSE}
+
+
+install.packages("palmerpenguins")
+install.packages("tidyverse")
+install.packages("dplyr")
+
+```
+
+## Load the required packages
+
+```{r Load the installed and required packages,  message=FALSE, warning=FALSE}
+
+library(tidyverse)
+library(palmerpenguins)
+library(dplyr)
+library(skimr)
+
+```
+
+
+
+
+
+
+## Data exploration 
+
+Take a quick look at the data.
+
+```{r data head, echo=TRUE}
+
+head(penguins)
+
+```
+
+Display the columns name.
+
+```{r columns name, echo=TRUE}
+colnames(penguins)
+```
+
+View general structure of the data
+
+```{r general structure of the data, echo=TRUE}
+str(penguins)
+```
+
+Display Data summary
+
+
+```{r skim analysis of the data, echo=TRUE}
+skim_without_charts(penguins)
+```
+
+
+```{r glimpse analysis of the data, echo=TRUE}
+glimpse(penguins)
+```
+
+
+
+Add a new column to the data
+
+```{r add new column, echo=FALSE}
+penguins <- penguins %>% mutate(body_mass_kg = body_mass_g/1000)
+```
+
+The following code shows how many males and females penguins are in the dataset.
+
+```{r penguin sex count, echo=TRUE}
+penguins %>% count(sex)
+```
+> Notice how the samples are almost equally collected, you can see that there are some missing values so we will have to deal with that before our analysis.
+
+Filter out the rows where sex is NA
+
+```{r filtering sex column, echo=TRUE}
+
+filtered_data <- penguins %>% filter(sex != 'NA')
+
+```
+
+
+
+
+Display Data summary on the filtered data
+
+```{r filterred data summary, echo=TRUE}
+filtered_data %>% summary()
+skim_without_charts(filtered_data)
+
+```
+
+
+Mean value of each column per penguin species
+
+
+```{r mean per penguin species, echo=TRUE}
+penguins %>% 
+  group_by(species) %>% 
+  summarize(across(where(is.numeric), mean, na.rm = TRUE))
+
+```
+
+
+## Visualization
+
+In this part we would like to visualize some of the data and try to extract some insights.
+
+
+Display a bar plot to better visualize the sex column
+
+
+```{r plot 1, echo=TRUE, fig.align='center' , echo=FALSE, out.height="60%", out.width="60%"}
+
+
+ggplot(data=filtered_data)+geom_bar(mapping=aes(x=sex,fill=sex))
+
+
+```
+
+Repeat the same steps for the species column
+
+```{r plot 2, echo=TRUE, fig.align='center' , echo=FALSE, out.height="60%", out.width="60%"}
+penguins %>%
+  count(species)
+```
+
+```{r plot 3, echo=FALSE , out.width = "60%" , out.height= "60%", fig.align = 'center'}
+
+ggplot(data=penguins)+geom_bar(mapping=aes(x=species,fill=species))
+
+```
+
+
+Create a scatter plot to show the relationship between flipper length and body mass 
+
+```{r plot 5, warning=FALSE, , echo=FALSE , out.width = "60%" , out.height= "60%", fig.align = 'center'}
+
+
+ggplot(data=penguins)+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g))+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+```
+
+> You can see in the scatter plot that there is a relationship between flipper length and the body mass, the higher the body mass the longer the flipper length.
+
+
+The following plots investigate if the above insight changes with the penguin species type. 
+
+```{r plot 6, echo=FALSE, message=FALSE, warning=FALSE, out.height="70%", out.width="70%" , fig.align='center'}
+
+
+ggplot(data=penguins)+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g,color=species,shape=species))+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+
+```{r plot 7, echo=FALSE, message=FALSE, warning=FALSE, out.height="70%", out.width="70%", fig.align='center'}
+
+ggplot(data=penguins)+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g,color=species,shape=species)) +
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+```
+
+Visualizing each species alone.
+
+```{r plot 8, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE, out.height="60%", out.width="60%"}
+penguins %>% filter(species == "Adelie")  %>% ggplot()+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g))+
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass for adelie",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+```{r plot 9, echo=FALSE, message=FALSE, warning=FALSE, out.height="60%", out.width="60%", fig.align='center'}
+penguins %>% filter(species == "Chinstrap")  %>% ggplot()+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g))+
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass for chinstrap",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+
+```{r plot 10, echo=FALSE, message=FALSE, warning=FALSE, out.height="60%", out.width="60%",fig.align='center' }
+
+penguins %>% filter(species == "Gentoo")  %>% ggplot()+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g))+
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass for gentoo",caption="Data collected by Dr. Kristen Gorman")
+```
+
+
+```{r plot 11,message=FALSE, warning=FALSE, , echo=FALSE, out.height="70%", out.width="70%", fig.align='center'}
+
+ggplot(data=penguins)+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g,color=species,shape=species))+
+  facet_wrap(~species)+
+  labs(title="Flipper length vs Body mass",subtitle="This show the relationship between flipper length and body mass across all species separately",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+> As we have seen, there is a positive relationship between the flipper length and body mass regardless of the penguin type.
+
+
+The following plots investigate if the above insight changes with the penguin sex. 
+
+
+
+```{r plot 12, echo=FALSE, message=TRUE, warning=FALSE, out.height="70%", out.width="70%" , fig.align='center'}
+
+ggplot(data=filtered_data)+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g,color=species,shape=species))+
+  facet_wrap(~sex)+
+  labs(title="Flipper length vs Body mass",subtitle="This show the effect of the sex on the relationship between flipper length and body mass",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+> As shown, penguin sex doesnt effect the relationship.
+
+
+## Analyzing the relationship between bill length vs body mass
+
+Repeating the same steps between penguin bill length and body mass
+
+```{r warning=FALSE, , echo=FALSE , out.width = "60%" , out.height= "60%", fig.align = 'center'}
+ggplot(data=penguins)+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g))+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+```{r warning=FALSE, , echo=FALSE , out.width = "70%" , out.height= "70%", fig.align = 'center'}
+
+ggplot(data=penguins)+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g,color=species,shape=species))+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="70%", out.width="70%" ,  fig.align='center'}
+
+ggplot(data=penguins)+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g,color=species,shape=species)) +
+  geom_smooth(mapping=aes(x=bill_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+Visualizing each species alone.
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="60%", out.width="60%", fig.align='center'}
+penguins %>% filter(species == "Adelie")  %>% ggplot()+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g))+
+  geom_smooth(mapping=aes(x=bill_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass for adelie",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="60%", out.width="60%" , fig.align='center'}
+penguins %>% filter(species == "Chinstrap")  %>% ggplot()+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g))+
+  geom_smooth(mapping=aes(x=bill_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass for chinstrap",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+
+
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="60%", out.width="60%", fig.align='center'}
+
+penguins %>% filter(species == "Gentoo")  %>% ggplot()+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g))+
+  geom_smooth(mapping=aes(x=bill_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass for gentoo",caption="Data collected by Dr. Kristen Gorman")
+
+```
+
+
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="70%", out.width="70%", fig.align='center'}
+ggplot(data=penguins)+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g,color=species,shape=species))+
+  facet_wrap(~species)+
+  labs(title="Bill length vs Body mass",subtitle="This show the relationship between bill length and body mass across all species",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="70%", out.width="70%", fig.align='center'}
+
+ggplot(data=filtered_data)+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g,color=species,shape=species))+
+  facet_wrap(~sex)+
+  labs(title="Bill length vs Body mass",subtitle="This show the effect of the sex on the relationship between bill length and body mass",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+> As we have seen, there is a positive relationship between the bill length and body mass regardless of the sex or species type.
+
+
+
+Analyzing the effect of the location on the relationship of the physical characteristics
+
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="70%", out.width="70%", fig.align='center'}
+
+ggplot(data=filtered_data)+geom_point(mapping=aes(x=bill_length_mm, y=body_mass_g,color=species,shape=species))+
+  facet_wrap(~island)+
+  geom_smooth(mapping=aes(x=bill_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Bill length vs Body mass",subtitle="This show the effect of the location on the relationship between bill length and body mass",caption="Data collected by Dr. Kristen Gorman")
+
+```
+
+
+```{r , message=FALSE, warning=FALSE, , echo=FALSE, out.height="70%", out.width="70%", fig.align='center'}
+
+ggplot(data=filtered_data)+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g,color=species,shape=species))+
+  facet_wrap(~island)+
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g),color = 'black')+
+  labs(title="Flipper length vs Body mass",subtitle="This show the effect of the location on the relationship between flipper length and body mass",caption="Data collected by Dr. Kristen Gorman")
+
+
+```
+
+
+> The island where the penguin lives doesnt effect the positive relationship.
+
+
+
+#Conclusion
+
+* There is a positive relationship between the flipper length and body mass
+* There is a positive relationship between the bill length and body mass
+* Sex, species and location of the penguin doesnt effect the relationship between the physical characteristics   
