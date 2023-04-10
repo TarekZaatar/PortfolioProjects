@@ -1,8 +1,8 @@
-Analyzing Airbnb data to see where are 
-the best location to start an airbnb business
+Analyzing Airbnb data to see
 
-What are the factors that can effect the price
-What is the best choice of apartment, rooms and bedrooms
+* Where are the best location to start an airbnb business.
+* What are the factors that can effect the price.
+* What is the best choice of apartment, rooms and bedrooms.
 
 
-- Data split into two .rar files
+Data split into two .rar files
